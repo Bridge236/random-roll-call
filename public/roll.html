@@ -1525,11 +1525,16 @@
             renderStudentChips();
             renderHistory();
             updateCounts();
-            document.getElementById('displayName').innerHTML = '<span class="display-placeholder">可以开始点名啦！</span>';
+            const classId = document.getElementById('classSelect').value;
+            if (classId) {
+                document.getElementById('displayName').innerHTML = '<span class="display-placeholder">可以开始点名啦！</span>';
+            } else {
+                document.getElementById('displayName').innerHTML = '<span class="display-placeholder">请先选择班级</span>';
+            }
             document.getElementById('displayArea').className = 'roll-call-display';
             showToast('已重置点名状态', 'success');
         }
-
+        
         // ===== 清空本轮（仅清除已点名标记，保留历史记录） =====
         function clearCurrentRound() {
             calledNames.clear();
@@ -1537,7 +1542,12 @@
             document.getElementById('easterBtn').disabled = true;
             renderStudentChips();
             updateCounts();
-            document.getElementById('displayName').innerHTML = '<span class="display-placeholder">可以开始点名啦！</span>';
+            const classId = document.getElementById('classSelect').value;
+            if (classId) {
+                document.getElementById('displayName').innerHTML = '<span class="display-placeholder">可以开始点名啊！</span>';
+            } else {
+                document.getElementById('displayName').innerHTML = '<span class="display-placeholder">请先选择班级</span>';
+            }
             document.getElementById('displayArea').className = 'roll-call-display';
             showToast('已清空本轮点名，历史记录保留', 'info');
         }
