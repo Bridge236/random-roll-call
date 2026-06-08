@@ -9,21 +9,73 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --accent:#6366f1;--accent-hover:#4f46e5;--accent-dark:#4338ca;
-  --accent-light:#e0e7ff;--accent-glow:rgba(99,102,241,0.15);
-  --bg:#f0f4ff;--bg-card:#ffffff;
-  --border:rgba(99,102,241,0.14);
+  --accent:#16a34a;--accent-hover:#15803d;--accent-dark:#166534;
+  --accent-light:#dcfce7;--accent-glow:rgba(22,163,74,0.15);
+  --bg:#f0fdf4;--bg-card:#ffffff;
+  --border:rgba(22,163,74,0.15);
   --text:#1e293b;--text-sub:#64748b;
   --red:#ef4444;--red-light:#fef2f2;
-  --shadow:0 4px 20px rgba(99,102,241,0.08);
+  --shadow:0 4px 20px rgba(22,163,74,0.08);
   --radius:16px;
 }
 body{
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
   background:var(--bg);min-height:100vh;color:var(--text);
+  overflow-x:hidden;
 }
 
-/* ===== NAV ===== */
+/* ===== 背景装饰 ===== */
+.bg-animation{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;overflow:hidden;pointer-events:none;
+}
+.bg-animation .blob{
+  position:absolute;border-radius:50%;
+  filter:blur(70px);opacity:0.13;
+  animation:blobFloat 28s infinite ease-in-out;
+}
+.bg-animation .blob:nth-child(1){
+  width:420px;height:420px;background:#4ade80;
+  top:-8%;left:-6%;animation-delay:0s;
+}
+.bg-animation .blob:nth-child(2){
+  width:360px;height:360px;background:#34d399;
+  top:55%;right:-8%;animation-delay:-9s;
+}
+.bg-animation .blob:nth-child(3){
+  width:300px;height:300px;background:#86efac;
+  bottom:-6%;left:28%;animation-delay:-17s;
+}
+@keyframes blobFloat{
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(28px,-38px) scale(1.08)}
+  50%{transform:translate(-18px,22px) scale(0.93)}
+  75%{transform:translate(14px,32px) scale(1.04)}
+}
+body::after{
+  content:'';
+  position:fixed;
+  bottom:0;left:0;right:0;
+  height:160px;
+  background:linear-gradient(to top,
+    rgba(52,211,153,0.15) 0%,
+    rgba(134,178,106,0.12) 50%,
+    transparent 100%);
+  pointer-events:none;
+  z-index:0;
+}
+body::before{
+  content:'';
+  position:fixed;
+  bottom:0;left:0;right:0;
+  height:60px;
+  background:linear-gradient(to top,rgba(16,185,129,0.09),transparent);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* 鼠标光晕 - disabled */
+#cursor-glow{display:none}
 .nav{
   background:rgba(255,255,255,0.9);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
@@ -43,7 +95,18 @@ body{
   object-fit:cover;object-position:35% 20%;
   background:#f8f9fa;
 }
-.nav-title{font-size:16px;font-weight:700;color:var(--accent-dark)}
+.nav-brand-text{display:flex;flex-direction:column;gap:1px}
+.nav-title{
+  font-size:16px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),#059669);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:2px;line-height:1.2;
+}
+.nav-slogan{
+  font-size:10px;color:var(--text-sub);letter-spacing:0.3px;
+  font-weight:400;opacity:0.7;white-space:nowrap;
+}
 .nav-center{display:flex;gap:4px}
 .nav-tab{
   padding:6px 16px;border-radius:8px;border:none;
@@ -68,7 +131,7 @@ body{
 .btn-nav-logout:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
 
 /* ===== LAYOUT ===== */
-.container{max-width:980px;margin:0 auto;padding:32px 20px}
+.container{max-width:980px;margin:0 auto;padding:32px 20px;position:relative;z-index:1}
 .page{display:none}.page.active{display:block}
 
 /* ===== PAGE HEADER ===== */
@@ -331,6 +394,11 @@ tr:hover td{background:rgba(99,102,241,0.025)}
 </style>
 </head>
 <body>
+<div class="bg-animation">
+  <div class="blob"></div>
+  <div class="blob"></div>
+  <div class="blob"></div>
+</div>
 
 <!-- LOADING -->
 <div class="loading-mask" id="loadingMask"><div class="spinner"></div></div>
@@ -339,13 +407,17 @@ tr:hover td{background:rgba(99,102,241,0.025)}
 <nav class="nav">
   <a class="nav-brand" onclick="location.href='roll.html'">
     <img src="logo.png" alt="" class="nav-logo" onerror="this.style.display='none'">
-    <span class="nav-title">别点我</span>
+    <div class="nav-brand-text">
+      <span class="nav-title">别点我</span>
+      <span class="nav-slogan">大喊一声别点我，下一个点到的就是你！</span>
+    </div>
   </a>
   <div class="nav-right">
     <span class="nav-user" id="navUser"></span>
     <button class="btn-nav-logout" onclick="doLogout()">退出</button>
   </div>
 </nav>
+<div id="cursor-glow"></div>
 
 <!-- MAIN -->
 <div class="container">
@@ -508,7 +580,7 @@ function renderClasses(classes) {
       </div>`;
     return;
   }
-  const emojis = ['🎒','📚','✏️','🖊️','📖','🔬','🎨','🏆'];
+  const emojis = ['🚩','📚','✏️','🖊️','📖','🔬','🎨','🏆'];
   grid.innerHTML = classes.map((cls, idx) => `
     <div class="class-row" onclick="openClass('${cls.id}','${esc(cls.name)}')">
       <div class="class-row-icon">${emojis[idx % emojis.length]}</div>
@@ -824,6 +896,9 @@ function showToast(msg, type = 'success') {
   clearTimeout(el._t);
   el._t = setTimeout(() => el.classList.remove('show'), 2800);
 }
+
+// 鼠标光晕 - disabled
 </script>
+<div style="text-align:center;padding:24px 0 16px;font-size:12px;color:var(--text-sub);opacity:0.4;letter-spacing:0.5px;position:relative;z-index:1">© Bridge CopyRight 2026</div>
 </body>
 </html>
