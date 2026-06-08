@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>别点我 - 班级管理</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --g50:#f1f8e9;--g100:#e8f5e9;--g200:#c8e6c9;
+  --g400:#66bb6a;--g500:#43a047;--g600:#388e3c;--g700:#2e7d32;
+  --red:#ef5350;--gray-100:#f8f9fa;--gray-200:#e9ecef;
+  --gray-500:#6c757d;--gray-700:#495057;
+  --shadow:0 4px 20px rgba(0,0,0,0.06);
+  --radius:14px;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:#f4f7f4;min-height:100vh;color:#333;
+}
+
+/* ===== TOP NAV ===== */
+.nav{
+  background:#fff;height:60px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 28px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.05);
+  position:sticky;top:0;z-index:50;
+}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:34px;height:34px;border-radius:8px;object-fit:cover}
+.nav-title{font-size:17px;font-weight:700;color:var(--g700)}
+.nav-right{display:flex;align-items:center;gap:14px}
+.nav-user{font-size:13px;color:var(--gray-500)}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{
+  padding:7px 18px;border-radius:8px;border:none;
+  background:transparent;font-size:14px;font-weight:500;
+  cursor:pointer;color:var(--gray-500);font-family:inherit;transition:.2s;
+}
+.nav-tab.active,.nav-tab:hover{background:var(--g50);color:var(--g600)}
+.nav-tab.active{font-weight:700;color:var(--g700)}
+.btn-logout{
+  padding:7px 16px;border-radius:8px;border:1.5px solid var(--g200);
+  background:#fff;color:var(--g600);font-size:13px;font-weight:500;
+  cursor:pointer;font-family:inherit;transition:.2s;
+}
+.btn-logout:hover{background:var(--g50)}
+
+/* ===== LAYOUT ===== */
+.container{max-width:960px;margin:0 auto;padding:28px 20px}
+.page{display:none}
+.page.active{display:block}
+
+/* ===== PAGE HEADER ===== */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:22px;font-weight:700;color:#222}
+.page-sub{font-size:14px;color:var(--gray-500);margin-top:4px}
+
+/* ===== BUTTONS ===== */
+.btn{
+  padding:10px 22px;border:none;border-radius:10px;
+  font-size:14px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--g500);color:#fff}
+.btn-primary:hover{background:var(--g600)}
+.btn-danger{background:#ffebee;color:var(--red);border:1px solid #ffcdd2}
+.btn-danger:hover{background:#ffcdd2}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
+
+/* ===== CLASS LIST ===== */
+.class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.class-card{
+  background:#fff;border-radius:var(--radius);padding:24px;
+  box-shadow:var(--shadow);cursor:pointer;transition:.2s;
+  border:2px solid transparent;position:relative;
+}
+.class-card:hover{border-color:var(--g200);transform:translateY(-2px);box-shadow:0 8px 28px rgba(46,125,50,0.1)}
+.class-card-name{font-size:18px;font-weight:700;color:#222;margin-bottom:8px}
+.class-card-meta{font-size:13px;color:var(--gray-500)}
+.class-card-actions{
+  position:absolute;top:12px;right:12px;
+  display:flex;gap:6px;opacity:0;transition:.2s;
+}
+.class-card:hover .class-card-actions{opacity:1}
+.icon-btn{
+  width:28px;height:28px;border-radius:6px;border:none;
+  background:rgba(0,0,0,0.05);cursor:pointer;font-size:13px;
+  display:flex;align-items:center;justify-content:center;transition:.2s;
+}
+.icon-btn:hover{background:rgba(0,0,0,0.1)}
+.icon-btn.del:hover{background:#ffebee;color:var(--red)}
+
+.add-class-card{
+  background:#fff;border-radius:var(--radius);padding:24px;
+  box-shadow:var(--shadow);cursor:pointer;transition:.2s;
+  border:2px dashed var(--g200);
+  display:flex;align-items:center;justify-content:center;
+  min-height:110px;color:var(--g400);font-size:15px;font-weight:600;gap:8px;
+}
+.add-class-card:hover{background:var(--g50);border-color:var(--g400)}
+
+/* ===== STUDENT PANEL ===== */
+.class-detail{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.class-detail-header{
+  padding:20px 24px;border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--g600);font-size:14px;font-weight:500;cursor:pointer;
+  background:none;border:none;font-family:inherit;
+}
+.back-btn:hover{text-decoration:underline}
+
+/* ===== TABLE ===== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{
+  text-align:left;padding:12px 16px;font-size:12px;
+  color:var(--gray-500);font-weight:600;
+  border-bottom:2px solid var(--gray-200);
+  text-transform:uppercase;letter-spacing:.5px;background:var(--gray-100);
+}
+td{padding:13px 16px;font-size:14px;border-bottom:1px solid var(--gray-200);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafff8}
+.no-num{color:var(--gray-500);font-size:12px}
+
+/* ===== FORM PANEL ===== */
+.form-panel{
+  padding:24px;border-top:1px solid var(--gray-200);
+  background:var(--g50);
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+.field label{font-size:12px;font-weight:700;color:var(--g600);margin-bottom:6px;display:block;letter-spacing:.3px}
+.field input{
+  width:100%;padding:11px 14px;border:2px solid var(--g100);
+  border-radius:10px;font-size:14px;background:#fff;
+  outline:none;transition:.2s;font-family:inherit;
+}
+.field input:focus{border-color:var(--g400);box-shadow:0 0 0 3px rgba(102,187,106,0.1)}
+.required-mark{color:var(--red);margin-left:2px}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.28);
+  z-index:200;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#fff;border-radius:20px;padding:32px;
+  width:100%;max-width:420px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.15);
+}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:20px;color:#222}
+.modal .field{margin-bottom:16px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+
+/* ===== IMPORT AREA ===== */
+.import-area{
+  border:2px dashed var(--g200);border-radius:12px;padding:20px;
+  margin-bottom:12px;text-align:center;cursor:pointer;transition:.2s;
+  color:var(--g400);font-size:14px;
+}
+.import-area:hover{background:var(--g50);border-color:var(--g400)}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999;
+  padding:12px 28px;border-radius:12px;font-size:14px;font-weight:500;color:#fff;
+  pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap;
+}
+.toast.show{opacity:1}
+.toast-success{background:var(--g500)}
+.toast-error{background:var(--red)}
+
+/* ===== EMPTY ===== */
+.empty{text-align:center;padding:60px 20px;color:var(--gray-500)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+
+/* ===== LOADING ===== */
+.loading-mask{
+  position:fixed;inset:0;background:rgba(255,255,255,.7);
+  z-index:998;display:flex;align-items:center;justify-content:center;
+}
+.spinner{
+  width:36px;height:36px;border:3px solid var(--g200);
+  border-top-color:var(--g500);border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr;gap:8px}
+  .class-grid{grid-template-columns:1fr}
+  .nav{padding:0 16px}
+  .nav-tabs{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-mask" id="loadingMask">
+  <div class="spinner"></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <img src="logo.png" alt="" class="nav-logo" onerror="this.style.display='none'">
+    <span class="nav-title">别点我</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('classes')">班级管理</button>
+    <button class="nav-tab" onclick="location.href='roll.html'">开始点名</button>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser"></span>
+    <button class="btn-logout" onclick="doLogout()">退出登录</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- 班级列表页 -->
+  <div class="page active" id="pageClasses">
+    <div class="page-header">
+      <div>
+        <div class="page-title">我的班级</div>
+        <div class="page-sub">点击班级卡片管理学生名单</div>
+      </div>
+    </div>
+    <div class="class-grid" id="classGrid">
+      <!-- 动态渲染 -->
+    </div>
+  </div>
+
+  <!-- 班级详情/学生名单页 -->
+  <div class="page" id="pageStudents">
+    <div class="class-detail">
+      <div class="class-detail-header">
+        <button class="back-btn" onclick="backToClasses()">← 返回班级列表</button>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="classNameLabel" style="font-size:17px;font-weight:700;color:#222"></span>
+          <span id="studentCountLabel" style="font-size:13px;color:var(--gray-500)"></span>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openImport()">批量导入</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:52px">序号</th>
+              <th>学生姓名</th>
+              <th style="width:100px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="studentTbody">
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 快速添加表单 -->
+      <div class="form-panel">
+        <div style="font-size:13px;font-weight:700;color:var(--g600);margin-bottom:12px">
+          添加学生 <span class="required-mark">*</span> 必填
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>学生姓名 <span class="required-mark">*</span></label>
+            <input id="newStuName" placeholder="如：张伟" maxlength="20">
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-primary" onclick="addStudent()" style="white-space:nowrap">+ 添加</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 新建班级 MODAL -->
+<div class="modal-overlay" id="modalNewClass" onclick="if(event.target===this)closeModal('modalNewClass')">
+  <div class="modal">
+    <h3>新建班级</h3>
+    <div class="field">
+      <label>班级名称 <span class="required-mark">*</span></label>
+      <input class="field input" id="newClassName" placeholder="如：高一(3)班 / 初二5班" maxlength="30"
+        style="width:100%;padding:11px 14px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;outline:none;font-family:inherit"
+        onkeydown="if(event.key==='Enter')saveNewClass()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" style="background:#f8f9fa;color:#333" onclick="closeModal('modalNewClass')">取消</button>
+      <button class="btn btn-primary" onclick="saveNewClass()">创建班级</button>
+    </div>
+  </div>
+</div>
+
+<!-- 批量导入 MODAL -->
+<div class="modal-overlay" id="modalImport" onclick="if(event.target===this)closeModal('modalImport')">
+  <div class="modal" style="max-width:480px">
+    <h3>批量导入学生</h3>
+    <p style="font-size:13px;color:#6c757d;margin-bottom:14px">
+      每行一个学生姓名，支持从 Excel 复制粘贴：
+    </p>
+    <textarea id="importText"
+      style="width:100%;height:180px;border:2px solid #e9ecef;border-radius:10px;padding:12px;font-size:14px;
+             font-family:inherit;outline:none;resize:vertical"
+      placeholder="张伟&#10;李娜&#10;王芳&#10;赵磊&#10;..."></textarea>
+    <div style="font-size:12px;color:#a0aec0;margin-top:8px">
+      每行一个名字，空行自动跳过，重名学生不会重复添加
+    </div>
+    <div class="modal-actions">
+      <button class="btn" style="background:#f8f9fa;color:#333" onclick="closeModal('modalImport')">取消</button>
+      <button class="btn btn-primary" onclick="doImport()">导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== AUTH CHECK ======
+let currentUser = null;
+let currentClassId = null;
+let currentClassName = '';
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  currentUser = session.user;
+  document.getElementById('navUser').textContent = currentUser.email;
+  document.getElementById('loadingMask').style.display = 'none';
+  loadClasses();
+})();
+
+// ====== PAGES ======
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+}
+
+// ====== LOGOUT ======
+async function doLogout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+// ====== CLASSES ======
+async function loadClasses() {
+  const { data, error } = await sb.from('classes')
+    .select('id, name, created_at')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: true });
+
+  if (error) { showToast('加载班级失败', 'error'); return; }
+  renderClasses(data || []);
+}
+
+function renderClasses(classes) {
+  const grid = document.getElementById('classGrid');
+  let html = '';
+
+  classes.forEach(cls => {
+    html += `
+      <div class="class-card" onclick="openClass('${cls.id}','${esc(cls.name)}')">
+        <div class="class-card-actions">
+          <button class="icon-btn del" onclick="event.stopPropagation();deleteClass('${cls.id}','${esc(cls.name)}')" title="删除班级">🗑</button>
+        </div>
+        <div class="class-card-name">${esc(cls.name)}</div>
+        <div class="class-card-meta" id="meta_${cls.id}">加载中...</div>
+      </div>`;
+  });
+
+  html += `<div class="add-class-card" onclick="openModal('modalNewClass')">
+    <span style="font-size:22px">+</span> 新建班级
+  </div>`;
+
+  grid.innerHTML = html;
+
+  // 异步加载各班级人数
+  classes.forEach(cls => loadClassMeta(cls.id));
+}
+
+async function loadClassMeta(classId) {
+  const { count } = await sb.from('students')
+    .select('id', { count: 'exact', head: true })
+    .eq('class_id', classId);
+  const el = document.getElementById('meta_' + classId);
+  if (el) el.textContent = `${count || 0} 名学生`;
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  // focus first input
+  setTimeout(() => {
+    const inp = document.getElementById(id).querySelector('input,textarea');
+    if (inp) inp.focus();
+  }, 50);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+async function saveNewClass() {
+  const name = document.getElementById('newClassName').value.trim();
+  if (!name) { showToast('请输入班级名称', 'error'); return; }
+
+  const { error } = await sb.from('classes').insert({
+    name,
+    user_id: currentUser.id
+  });
+
+  if (error) { showToast('创建失败：' + error.message, 'error'); return; }
+  document.getElementById('newClassName').value = '';
+  closeModal('modalNewClass');
+  showToast('班级创建成功');
+  loadClasses();
+}
+
+async function deleteClass(id, name) {
+  if (!confirm(`确定删除班级「${name}」？该班级所有学生和点名记录将被清除，此操作不可恢复。`)) return;
+
+  // 先删学生，再删班级（数据库设了 cascade 的话只需删班级）
+  await sb.from('students').delete().eq('class_id', id);
+  await sb.from('roll_records').delete().eq('class_id', id);
+  const { error } = await sb.from('classes').delete().eq('id', id);
+
+  if (error) { showToast('删除失败', 'error'); return; }
+  showToast('班级已删除');
+  loadClasses();
+}
+
+// ====== STUDENTS ======
+async function openClass(classId, className) {
+  currentClassId = classId;
+  currentClassName = className;
+  document.getElementById('classNameLabel').textContent = className;
+  showPage('students');
+  document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  await loadStudents();
+}
+
+function backToClasses() {
+  currentClassId = null;
+  showPage('classes');
+  document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  loadClasses();
+}
+
+async function loadStudents() {
+  const { data, error } = await sb.from('students')
+    .select('id, name')
+    .eq('class_id', currentClassId)
+    .order('created_at', { ascending: true });
+
+  if (error) { showToast('加载学生失败', 'error'); return; }
+  renderStudents(data || []);
+}
+
+function renderStudents(students) {
+  document.getElementById('studentCountLabel').textContent = `共 ${students.length} 人`;
+  const tbody = document.getElementById('studentTbody');
+
+  if (students.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:48px;color:#aaa">
+      暂无学生，请在下方添加或批量导入
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = students.map((s, i) => `
+    <tr>
+      <td style="color:#aaa;font-size:12px">${i + 1}</td>
+      <td style="font-weight:500">${esc(s.name)}</td>
+      <td>
+        <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}','${esc(s.name)}')">删除</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function addStudent() {
+  const nameInput = document.getElementById('newStuName');
+  const name = nameInput.value.trim();
+
+  if (!name) { showToast('请输入学生姓名', 'error'); nameInput.focus(); return; }
+
+  const { error } = await sb.from('students').insert({
+    name,
+    class_id: currentClassId,
+    user_id: currentUser.id
+  });
+
+  if (error) { showToast('添加失败：' + error.message, 'error'); return; }
+  nameInput.value = '';
+  nameInput.focus();
+  showToast(`已添加：${name}`);
+  loadStudents();
+}
+
+// 回车添加
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('pageStudents').classList.contains('active')) {
+    if (document.activeElement === document.getElementById('newStuName')) {
+      addStudent();
+    }
+  }
+});
+
+async function deleteStudent(id, name) {
+  if (!confirm(`确定从名单中删除「${name}」？`)) return;
+  const { error } = await sb.from('students').delete().eq('id', id);
+  if (error) { showToast('删除失败', 'error'); return; }
+  showToast(`已删除：${name}`);
+  loadStudents();
+}
+
+// ====== IMPORT ======
+function openImport() {
+  document.getElementById('importText').value = '';
+  openModal('modalImport');
+}
+
+async function doImport() {
+  const text = document.getElementById('importText').value;
+  const names = text.split('\n')
+    .map(s => s.trim())
+    .filter(s => s.length > 0 && s.length <= 20);
+
+  if (names.length === 0) { showToast('未识别到有效姓名', 'error'); return; }
+
+  // 查已有学生，去重
+  const { data: existing } = await sb.from('students')
+    .select('name').eq('class_id', currentClassId);
+  const existingNames = new Set((existing || []).map(s => s.name));
+
+  const toInsert = names
+    .filter(n => !existingNames.has(n))
+    .map(name => ({ name, class_id: currentClassId, user_id: currentUser.id }));
+
+  if (toInsert.length === 0) {
+    showToast('所有学生已存在，无需重复导入', 'error');
+    closeModal('modalImport');
+    return;
+  }
+
+  const { error } = await sb.from('students').insert(toInsert);
+  if (error) { showToast('导入失败：' + error.message, 'error'); return; }
+
+  closeModal('modalImport');
+  showToast(`成功导入 ${toInsert.length} 名学生${names.length > toInsert.length ? `，跳过 ${names.length - toInsert.length} 个重名` : ''}`);
+  loadStudents();
+}
+
+// ====== UTILS ======
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str; return d.innerHTML;
+}
+
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast toast-' + type + ' show';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

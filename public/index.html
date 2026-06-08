@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>别点我 - 登录</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --g50:#f1f8e9;--g100:#e8f5e9;--g200:#c8e6c9;
+  --g400:#66bb6a;--g500:#43a047;--g600:#388e3c;--g700:#2e7d32;
+  --red:#ef5350;--gray:#6c757d;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#e8f5e9 0%,#f1f8e9 60%,#c8e6c9 100%);
+  padding:20px;
+}
+/* 背景装饰泡泡 */
+body::before,body::after{
+  content:'';position:fixed;border-radius:50%;pointer-events:none;
+}
+body::before{width:500px;height:500px;background:rgba(102,187,106,0.08);top:-150px;right:-100px}
+body::after{width:350px;height:350px;background:rgba(165,214,167,0.1);bottom:-80px;left:-80px}
+
+.card{
+  position:relative;z-index:1;
+  width:100%;max-width:420px;
+  background:rgba(255,255,255,0.88);
+  backdrop-filter:blur(20px);
+  border-radius:28px;padding:52px 44px;
+  box-shadow:0 24px 64px rgba(46,125,50,0.12),0 0 0 1px rgba(129,199,132,0.18);
+  text-align:center;
+}
+
+/* Logo区域 */
+.logo-wrap{margin-bottom:32px}
+.logo-img{
+  width:108px;height:108px;border-radius:26px;
+  object-fit:cover;
+  box-shadow:0 10px 32px rgba(46,125,50,0.18);
+  margin-bottom:18px;
+}
+.site-name{
+  font-size:30px;font-weight:800;color:var(--g700);
+  letter-spacing:3px;margin-bottom:10px;
+}
+.slogan{
+  font-size:14px;color:var(--g400);font-weight:500;
+  line-height:1.5;
+}
+
+/* 表单 */
+.form-group{margin-bottom:18px;text-align:left}
+.form-group label{
+  display:block;font-size:12px;font-weight:700;
+  color:var(--g600);margin-bottom:7px;letter-spacing:.5px;text-transform:uppercase;
+}
+.form-group input{
+  width:100%;padding:14px 16px;
+  border:2px solid var(--g100);border-radius:13px;
+  font-size:15px;background:var(--g50);
+  outline:none;transition:all .25s;font-family:inherit;color:#333;
+}
+.form-group input:focus{
+  border-color:var(--g400);background:#fff;
+  box-shadow:0 0 0 4px rgba(102,187,106,0.12);
+}
+.form-group input::placeholder{color:#b2dfdb}
+
+/* 错误提示 */
+.err-msg{
+  display:none;align-items:center;gap:6px;
+  background:#ffebee;color:var(--red);
+  border-radius:10px;padding:10px 14px;
+  font-size:13px;margin-bottom:16px;text-align:left;
+}
+.err-msg.show{display:flex}
+
+/* 登录按钮 */
+.btn-login{
+  width:100%;padding:16px;margin-top:4px;
+  background:linear-gradient(135deg,var(--g400),var(--g500));
+  color:#fff;border:none;border-radius:14px;
+  font-size:16px;font-weight:700;cursor:pointer;
+  letter-spacing:2px;font-family:inherit;
+  transition:all .25s;position:relative;overflow:hidden;
+}
+.btn-login:hover{
+  background:linear-gradient(135deg,var(--g500),var(--g700));
+  transform:translateY(-2px);
+  box-shadow:0 10px 28px rgba(46,125,50,0.28);
+}
+.btn-login:active{transform:translateY(0)}
+.btn-login:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-login .spinner{
+  display:none;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .7s linear infinite;margin:auto;
+}
+.btn-login.loading .btn-text{display:none}
+.btn-login.loading .spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.footer-note{font-size:12px;color:#a5d6a7;margin-top:24px}
+
+@media(max-width:480px){.card{padding:40px 28px}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo-wrap">
+    <img src="logo.png" alt="别点我" class="logo-img" onerror="this.style.display='none'">
+    <div class="site-name">别 点 我</div>
+    <div class="slogan">大喊别点我，下一个就是你</div>
+  </div>
+
+  <form id="loginForm" onsubmit="return false">
+    <div class="form-group">
+      <label>账号（邮箱）</label>
+      <input type="email" id="email" placeholder="teacher@school.com" autocomplete="email" required>
+    </div>
+    <div class="form-group">
+      <label>密码</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+    </div>
+
+    <div class="err-msg" id="errMsg">
+      <span>⚠</span><span id="errText">账号或密码错误，请重试</span>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">
+      <span class="btn-text">登 录</span>
+      <div class="spinner"></div>
+    </button>
+  </form>
+
+  <div class="footer-note">仅限已授权教师使用 · 如需开通请联系管理员</div>
+</div>
+
+<script>
+// 检查是否已登录，直接跳转
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) location.href = 'dashboard.html';
+})();
+
+async function doLogin() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('errMsg');
+  const errText = document.getElementById('errText');
+
+  if (!email || !password) {
+    showErr('请输入账号和密码');
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+  err.classList.remove('show');
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    if (error.message.includes('Invalid login')) {
+      showErr('账号或密码错误，请重试');
+    } else if (error.message.includes('Email not confirmed')) {
+      showErr('账号未激活，请联系管理员');
+    } else {
+      showErr('登录失败：' + error.message);
+    }
+  } else {
+    // 登录成功
+    location.href = 'dashboard.html';
+  }
+}
+
+function showErr(msg) {
+  document.getElementById('errText').textContent = msg;
+  document.getElementById('errMsg').classList.add('show');
+}
+
+// 回车登录
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>
