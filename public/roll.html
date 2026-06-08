@@ -102,6 +102,77 @@
             75% { transform: translate(15px, 35px) scale(1.05); }
         }
 
+        /* 右上角导航栏 */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(99, 102, 241, 0.12);
+            border-radius: 14px;
+            padding: 7px 12px;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .top-nav .nav-user {
+            font-size: 12px;
+            color: var(--text-secondary);
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .top-nav .nav-divider {
+            width: 1px;
+            height: 16px;
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .top-nav .btn-dashboard {
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(99, 102, 241, 0.25);
+            background: rgba(99, 102, 241, 0.07);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            line-height: 1.4;
+        }
+
+        .top-nav .btn-dashboard:hover {
+            background: rgba(99, 102, 241, 0.14);
+            border-color: var(--accent);
+        }
+
+        .top-nav .btn-logout {
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(99, 102, 241, 0.12);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .top-nav .btn-logout:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.06);
+        }
+
         /* 主布局 */
         .container {
             position: relative;
@@ -109,6 +180,7 @@
             max-width: 900px;
             margin: 0 auto;
             padding: 30px 20px;
+            padding-top: 20px;
         }
 
         /* 头部 */
@@ -137,89 +209,58 @@
             font-size: 1rem;
         }
 
-        /* 班级选择栏 */
-        .class-bar {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: 16px;
-            padding: 14px 20px;
-            box-shadow: 0 2px 12px var(--shadow);
+        /* 旧 class-bar 相关（已移除，保留空规则避免残留） */
+        .class-bar { display: none; }
+        .user-info { display: none; }
+        .btn-logout { display: none; }
+        .btn-dashboard { display: none; }
+
+        /* 班级选择 - 嵌入展示区左上角 */
+        .class-selector-overlay {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            z-index: 10;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .class-bar label {
-            font-size: 14px;
-            font-weight: 600;
+        .class-selector-overlay label {
+            font-size: 11px;
+            font-weight: 700;
             color: var(--accent);
+            letter-spacing: 0.5px;
             white-space: nowrap;
+            opacity: 0.8;
         }
 
         .class-select {
-            flex: 1;
-            min-width: 180px;
-            padding: 10px 14px;
-            border: 2px solid var(--accent-light);
+            padding: 6px 28px 6px 10px;
+            border: 1.5px solid rgba(99, 102, 241, 0.22);
             border-radius: 10px;
-            font-size: 14px;
-            background: var(--bg-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
             outline: none;
             cursor: pointer;
             font-family: inherit;
             color: var(--text-primary);
-            transition: border-color 0.3s;
+            transition: all 0.25s;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236366f1' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            min-width: 140px;
         }
 
         .class-select:focus {
             border-color: var(--accent);
-        }
-
-        .user-info {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-left: auto;
-        }
-
-        .btn-logout {
-            padding: 7px 16px;
-            border-radius: 8px;
-            border: 1.5px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-
-        .btn-logout:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-            background: #fef2f2;
-        }
-
-        .btn-dashboard {
-            padding: 7px 16px;
-            border-radius: 8px;
-            border: 1.5px solid var(--border);
-            background: var(--bg-card);
-            color: var(--accent);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-dashboard:hover {
-            border-color: var(--accent);
-            background: var(--accent-light);
+            background-color: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         /* 主显示区 - 点名展示 */
@@ -750,14 +791,6 @@
             background: var(--accent-light);
         }
 
-        .student-chip.absent {
-            border-color: rgba(239, 68, 68, 0.4);
-            border-style: dashed;
-            color: var(--danger);
-            opacity: 0.65;
-            background: #fef2f2;
-        }
-
         .student-chip.called {
             opacity: 0.4;
             text-decoration: line-through;
@@ -923,27 +956,31 @@
 
     <!-- 全屏撒花容器 -->
     <div class="confetti-container" id="confettiContainer"></div>
-
+    
+    <!-- 右上角导航栏 -->
+    <div class="top-nav">
+        <span class="nav-user" id="navUser"></span>
+        <div class="nav-divider"></div>
+        <button class="btn-dashboard" onclick="location.href='dashboard.html'"> 班级管理</button>
+        <button class="btn-logout" onclick="doLogout()">退出</button>
+    </div>
+    
     <div class="container">
         <!-- 头部 -->
         <header class="header">
             <h1>随机<span>点名</span>器</h1>
-            <p>responsibility，雷老师呀别点me!</p>
+            <p>responsibility，雷老师呢别点me!</p>
         </header>
-
-        <!-- 班级选择栏 -->
-        <div class="class-bar">
-            <label>📋 选择班级</label>
-            <select class="class-select" id="classSelect" onchange="onClassChange()">
-                <option value="">-- 请选择班级 --</option>
-            </select>
-            <span class="user-info" id="navUser"></span>
-            <button class="btn-dashboard" onclick="location.href='dashboard.html'">班级管理</button>
-            <button class="btn-logout" onclick="doLogout()">退出</button>
-        </div>
-
+    
         <!-- 主展示区 -->
         <section class="roll-call-display" id="displayArea">
+            <!-- 左上角班级选择 -->
+            <div class="class-selector-overlay">
+                
+                <select class="class-select" id="classSelect" onchange="onClassChange()">
+                    <option value="">— 选择班级 —</option>
+                </select>
+            </div>
             <div class="display-name" id="displayName">
                 <span class="display-placeholder">请先选择班级</span>
             </div>
@@ -952,9 +989,8 @@
 
         <!-- 操控按钮 -->
         <div class="control-panel">
-            <button class="btn btn-primary" id="startBtn" onclick="startRollCall()" disabled>选择班级后开始</button>
+            <button class="btn btn-primary" id="startBtn" onclick="startRollCall()" disabled>开始点名</button>
             <button class="btn btn-secondary" id="resetBtn" onclick="resetCalledStatus()">重置点名</button>
-            <button class="btn btn-danger" id="clearAllBtn" onclick="resetCalledStatus()">清空本轮</button>
             <button class="btn btn-easter" id="easterBtn" onclick="triggerEasterEgg()" disabled>彩蛋</button>
         </div>
 
@@ -982,9 +1018,7 @@
                     <span>名单管理</span>
                     <span class="badge" id="nameCountBadge">0人</span>
                 </div>
-                <div class="preset-row">
-                    <span style="font-size:0.8rem;color:var(--text-secondary);padding:6px 0;">点击学生可标记缺席（不影响后台数据）</span>
-                </div>
+
                 <div class="student-chip-row" id="studentChipRow"></div>
                 <div class="empty-hint" id="emptyHint">请先选择班级</div>
             </div>
@@ -1006,7 +1040,7 @@
         let currentUser = null;
         let names = [];           // 当前班级所有学生名字
         let studentIds = [];      // 对应的学生 ID
-        let absentIds = new Set(); // 本地缺席标记（不影响后台）
+
         let calledNames = new Set();
         let history = [];
         let isRolling = false;
@@ -1264,7 +1298,7 @@
 
         async function loadClassOptions() {
             const { data } = await sb.from('classes')
-                .select('id, name').eq('user_id', currentUser.id)
+                .select('id, name, is_default').eq('user_id', currentUser.id)
                 .order('created_at', { ascending: true });
             const sel = document.getElementById('classSelect');
             (data || []).forEach(c => {
@@ -1272,6 +1306,12 @@
                 o.value = c.id; o.textContent = c.name;
                 sel.appendChild(o);
             });
+            // 自动选中默认班级
+            const def = (data || []).find(c => c.is_default);
+            if (def) {
+                sel.value = def.id;
+                await onClassChange();
+            }
         }
 
         // ===== 班级切换：从 Supabase 加载学生数据 =====
@@ -1279,14 +1319,13 @@
             const classId = document.getElementById('classSelect').value;
 
             if (!classId) {
-                names = []; studentIds = []; absentIds = new Set();
+                names = []; studentIds = [];
                 calledNames = new Set(); history = [];
                 lastSelectedName = '';
                 document.getElementById('startBtn').disabled = true;
-                document.getElementById('startBtn').textContent = '选择班级后开始';
                 document.getElementById('easterBtn').disabled = true;
                 document.getElementById('displayName').innerHTML = '<span class="display-placeholder">请先选择班级</span>';
-                document.getElementById('displayCount').textContent = '请选择班级后开始点名';
+                document.getElementById('displayCount').textContent = '';
                 document.getElementById('displayArea').className = 'roll-call-display';
                 renderStudentChips();
                 renderHistory();
@@ -1301,7 +1340,6 @@
 
             names = (data || []).map(s => s.name);
             studentIds = (data || []).map(s => s.id);
-            absentIds = new Set();
             calledNames = new Set();
             history = [];
             lastSelectedName = '';
@@ -1309,7 +1347,6 @@
             if (names.length === 0) {
                 showToast('该班级暂无学生，请先去「班级管理」添加', 'error');
                 document.getElementById('startBtn').disabled = true;
-                document.getElementById('startBtn').textContent = '暂无学生';
                 document.getElementById('easterBtn').disabled = true;
                 document.getElementById('displayName').innerHTML = '<span class="display-placeholder">该班级暂无学生</span>';
                 document.getElementById('displayCount').textContent = '请先添加学生';
@@ -1327,7 +1364,7 @@
             showToast(`已加载「${document.getElementById('classSelect').selectedOptions[0].textContent}」，共 ${names.length} 人`, 'success');
         }
 
-        // ===== 名单管理 - 学生芯片（支持缺席标记） =====
+        // ===== 名单管理 - 学生芯片 =====
         function renderStudentChips() {
             const row = document.getElementById('studentChipRow');
             const hint = document.getElementById('emptyHint');
@@ -1343,27 +1380,11 @@
 
             hint.style.display = 'none';
             row.innerHTML = names.map((name, i) => {
-                const sid = studentIds[i];
-                const isAbsent = absentIds.has(sid);
                 const isCalled = calledNames.has(name);
                 let cls = 'student-chip';
-                if (isAbsent) cls += ' absent';
                 if (isCalled) cls += ' called';
-                const title = isAbsent ? '点击恢复' : '点击标记缺席（不影响后台数据）';
-                return `<div class="${cls}" onclick="toggleAbsent('${sid}')" title="${title}">
-                    ${escHtml(name)}${isAbsent ? ' ✗' : ''}
-                </div>`;
+                return `<div class="${cls}">${escHtml(name)}</div>`;
             }).join('');
-        }
-
-        function toggleAbsent(id) {
-            if (absentIds.has(id)) {
-                absentIds.delete(id);
-            } else {
-                absentIds.add(id);
-            }
-            renderStudentChips();
-            updateCounts();
         }
 
         // ===== 渲染历史 =====
@@ -1390,16 +1411,11 @@
         function updateCounts() {
             const total = names.length;
             const called = calledNames.size;
-            const activeTotal = names.filter((_, i) => !absentIds.has(studentIds[i])).length;
-            const activeCalled = Array.from(calledNames).filter(n => {
-                const idx = names.indexOf(n);
-                return idx >= 0 && !absentIds.has(studentIds[idx]);
-            }).length;
 
             document.getElementById('displayCount').textContent =
                 total > 0
-                    ? `当前名单人数：${activeTotal}（共${total}人） | 已点名：${activeCalled}`
-                    : '请先选择班级';
+                    ? `当前名单人数：${total} | 已点名：${called}`
+                    : '';
 
             document.getElementById('nameCountBadge').textContent = `${total}人`;
             document.getElementById('historyCountBadge').textContent = `${history.length}次`;
@@ -1414,16 +1430,12 @@
             const startBtn = document.getElementById('startBtn');
             if (total === 0) {
                 startBtn.disabled = true;
-                startBtn.textContent = '暂无学生';
+                startBtn.textContent = '开始点名';
             } else {
                 const noRepeat = document.getElementById('noRepeat').checked;
                 const available = getAvailable();
                 startBtn.disabled = noRepeat && available.length === 0;
-                if (startBtn.disabled) {
-                    startBtn.textContent = '全部点完';
-                } else {
-                    startBtn.textContent = '开始点名';
-                }
+                startBtn.textContent = '开始点名';
             }
         }
 
@@ -1431,13 +1443,12 @@
         function getAvailable() {
             return names.filter((name, i) => {
                 const noRepeat = document.getElementById('noRepeat').checked;
-                if (absentIds.has(studentIds[i])) return false;
                 if (noRepeat && calledNames.has(name)) return false;
                 return true;
             });
         }
 
-        // ===== 重置点名 =====
+        // ===== 重置点名（清空历史+本轮记录） =====
         function resetCalledStatus() {
             calledNames.clear();
             history = [];
@@ -1449,6 +1460,18 @@
             document.getElementById('displayName').innerHTML = '<span class="display-placeholder">可以开始点名啦！</span>';
             document.getElementById('displayArea').className = 'roll-call-display';
             showToast('已重置点名状态', 'success');
+        }
+
+        // ===== 清空本轮（仅清除已点名标记，保留历史记录） =====
+        function clearCurrentRound() {
+            calledNames.clear();
+            lastSelectedName = '';
+            document.getElementById('easterBtn').disabled = true;
+            renderStudentChips();
+            updateCounts();
+            document.getElementById('displayName').innerHTML = '<span class="display-placeholder">可以开始点名啦！</span>';
+            document.getElementById('displayArea').className = 'roll-call-display';
+            showToast('已清空本轮点名，历史记录保留', 'info');
         }
 
         // ===== 点名核心逻辑 =====
